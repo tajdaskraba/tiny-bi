@@ -21,5 +21,9 @@
   "homepage": "https://github.com/tajdaskraba/data-visualisation#readme",
   "devDependencies": {
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/d3": "^7.4.3",
+    "d3": "^7.9.0"
   }
 }
