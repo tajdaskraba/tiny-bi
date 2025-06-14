@@ -1,15 +1,15 @@
 import * as d3 from 'd3';
-import myData from './data/dataInput';
-import { nodeSum } from './data/dataUtils';
+import { initialRawData } from './data/dataRaw';
+import { createHierarchyData } from './data/dataTransform';
 
-const root: d3.HierarchyNode<any> = d3.hierarchy(myData);
+const root = d3.hierarchy(createHierarchyData(initialRawData, "root"));
 
 // print first level of hierarchy
-console.log(root.children);
+console.log("first level", root.children);
 
-// print leafs
+// print leaf values
 root.leaves().forEach(leaf => {
-  console.log(leaf.data.value);
+  console.log("leaves", leaf.data.value);
 });
 
 // parent p has children c1, c2, c3. get c1.value + c2.value + c3.value
@@ -22,3 +22,6 @@ root.leaves().forEach(leaf => {
 //     return 0;
 //   }
 // }
+
+const data = createHierarchyData(initialRawData, "root");
+console.log("data", data);
