@@ -1,0 +1,21 @@
+.node-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.node-name {
+    font-family: sans-serif;
+}
+
+.node-value {
+    &.sum {
+        font-weight: bold;
+    }
+}
+
+.skipped {
+    text-decoration: line-through;
+    color: gray;
+} 

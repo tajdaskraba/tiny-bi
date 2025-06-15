@@ -1,12 +1,10 @@
-import { Node, RawNode } from '../types';
+import { Node, RawNode } from '../types/index';
 
 let idCounter = 0;
 
 export const transformRawNodes = (rawData: RawNode[]): Node[] => {
   return rawData.map(rawNode => {
     const [name, value] = Object.entries(rawNode)[0];
-    
-    //console.log(Object.entries(rawNode)[0])
 
     if (typeof value === 'number') {
       return {

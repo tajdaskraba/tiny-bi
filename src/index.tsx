@@ -1,31 +1,82 @@
 import { createRoot } from 'react-dom/client';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import * as d3 from 'd3';
 import { initialRawData } from './data/dataRaw';
-import { createHierarchyData } from './data/dataTransform';
+import { Hierarchy } from './classes/Hierarchy';
+import { Node, NodeState } from './types';
+import { NodeRow } from './components/NodeRow/NodeRow';
+import { ContextMenu } from './components/ContextMenu/ContextMenu';
+import './index.scss';
 
-const root = d3.hierarchy(createHierarchyData(initialRawData, "root"));
-const childrenData = root.children?.map(child => child.data);
+interface ContextMenuState {
+    visible: boolean;
+    x: number;
+    y: number;
+    node: d3.HierarchyNode<Node> | null;
+}
 
 const App = () => {
+    const hierarchy = useRef(new Hierarchy(initialRawData, "root"));
+    const [renderKey, setRenderKey] = useState(0);
+    const [contextMenu, setContextMenu] = useState<ContextMenuState>({ visible: false, x: 0, y: 0, node: null });
+
+    const forceRender = () => {
+        setRenderKey(prev => prev + 1);
+    };
+
+    const handleContextMenu = useCallback((event: React.MouseEvent, node: d3.HierarchyNode<Node>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const isLeaf = !node.children || node.children.length === 0;
+        if (isLeaf) {
+            setContextMenu({ visible: true, x: event.clientX, y: event.clientY, node });
+        }
+    }, []);
+
+    const closeContextMenu = useCallback(() => {
+        if (contextMenu.visible) {
+            setContextMenu({ ...contextMenu, visible: false });
+        }
+    }, [contextMenu]);
+
+    useEffect(() => {
+        window.addEventListener('click', closeContextMenu);
+        return () => {
+            window.removeEventListener('click', closeContextMenu);
+        };
+    }, [closeContextMenu]);
+
+    const handleInvert = (node: d3.HierarchyNode<Node>) => {
+        const currentStatus = node.data.status;
+        const newStatus: NodeState = currentStatus === 'inverted' ? 'unaltered' : 'inverted';
+        hierarchy.current.updateNodeState(node.data.id, newStatus);
+        forceRender();
+    };
+    
+    const handleSkip = (node: d3.HierarchyNode<Node>) => {
+        const currentStatus = node.data.status;
+        const newStatus: NodeState = currentStatus === 'skipped' ? 'unaltered' : 'skipped';
+        hierarchy.current.updateNodeState(node.data.id, newStatus);
+        forceRender();
+    };
+
+    const hierarchyData = hierarchy.current.getHierarchy();
+
     return (
-        <div>
-            <div>
-                <select name="status" id="status">
-                    <option value="normal">normal</option>
-                    <option value="skip">skip</option>
-                    <option value="invert">invert</option>
-                </select>
-                <select name="variable" id="variable">
-                    <option value="oct">oct</option>
-                    <option value="nov">nov</option>
-                    <option value="dec">dec</option>
-                </select>
+        <div className='app' key={renderKey} onClick={closeContextMenu}>
+            <div className='container'>
+                <NodeRow node={hierarchyData} onContextMenu={handleContextMenu} />
             </div>
-            <div style={{border: '1px solid black'}}>
-                <pre>
-                    {JSON.stringify(childrenData, null, 2)}
-                </pre>
-            </div>
+            {contextMenu.visible && contextMenu.node && (
+                <ContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    node={contextMenu.node}
+                    onClose={closeContextMenu}
+                    onInvert={handleInvert}
+                    onSkip={handleSkip}
+                />
+            )}
         </div>
     );
 };
@@ -35,16 +86,3 @@ if (container) {
     const root = createRoot(container);
     root.render(<App />);
 }
-
-// parent p has children c1, c2, c3. get c1.value + c2.value + c3.value
-// export const getChildrenSum = (nodeName: string): number => {
-//   const node = root.descendants().find(n => n.data.name === nodeName);
-//   if (node) {
-//     return nodeSum(node);
-//   } else {
-//     console.error(`Node with name ${nodeName} not found.`);
-//     return 0;
-//   }
-// }
-
-console.log("data", childrenData);
