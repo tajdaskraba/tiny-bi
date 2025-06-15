@@ -18,6 +18,12 @@
         &:hover {
           background-color: #f0f0f0;
         }
+
+        &.disabled {
+          color: #ccc;
+          cursor: not-allowed;
+          background-color: white;
+        }
       }
     }
   } 

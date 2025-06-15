@@ -38,6 +38,18 @@ export class Hierarchy {
     }
   }
 
+  public updateChildrenState(nodeId: string, newState: NodeState): void {
+    const node = this.root.descendants().find(n => n.data.id === nodeId);
+    if (node && node.children) {
+      node.leaves().forEach(leaf => {
+        leaf.data.status = newState;
+      });
+      this.calculateValues();
+    } else {
+      console.error(`Node with id ${nodeId} is not a parent node.`);
+    }
+  }
+
   public getHierarchy(): d3.HierarchyNode<Node> {
     return this.root;
   }

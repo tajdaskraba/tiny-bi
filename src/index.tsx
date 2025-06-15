@@ -27,10 +27,7 @@ const App = () => {
     const handleContextMenu = useCallback((event: React.MouseEvent, node: d3.HierarchyNode<Node>) => {
         event.preventDefault();
         event.stopPropagation();
-        const isLeaf = !node.children || node.children.length === 0;
-        if (isLeaf) {
-            setContextMenu({ visible: true, x: event.clientX, y: event.clientY, node });
-        }
+        setContextMenu({ visible: true, x: event.clientX, y: event.clientY, node });
     }, []);
 
     const closeContextMenu = useCallback(() => {
@@ -47,18 +44,38 @@ const App = () => {
     }, [closeContextMenu]);
 
     const handleInvert = (node: d3.HierarchyNode<Node>) => {
-        const currentStatus = node.data.status;
-        const newStatus: NodeState = currentStatus === 'inverted' ? 'unaltered' : 'inverted';
-        hierarchy.current.updateNodeState(node.data.id, newStatus);
+        const isLeaf = !node.children || node.children.length === 0;
+        if (isLeaf) {
+            const currentStatus = node.data.status;
+            const newStatus: NodeState = currentStatus === 'inverted' ? 'unaltered' : 'inverted';
+            hierarchy.current.updateNodeState(node.data.id, newStatus);
+        } else {
+            hierarchy.current.updateChildrenState(node.data.id, 'inverted');
+        }
         forceRender();
     };
     
     const handleSkip = (node: d3.HierarchyNode<Node>) => {
-        const currentStatus = node.data.status;
-        const newStatus: NodeState = currentStatus === 'skipped' ? 'unaltered' : 'skipped';
-        hierarchy.current.updateNodeState(node.data.id, newStatus);
+        const isLeaf = !node.children || node.children.length === 0;
+        if (isLeaf) {
+            const currentStatus = node.data.status;
+            const newStatus: NodeState = currentStatus === 'skipped' ? 'unaltered' : 'skipped';
+            hierarchy.current.updateNodeState(node.data.id, newStatus);
+        } else {
+            hierarchy.current.updateChildrenState(node.data.id, 'skipped');
+        }
         forceRender();
     };
+
+    const handleReset = (node: d3.HierarchyNode<Node>) => {
+        const isLeaf = !node.children || node.children.length === 0;
+        if (isLeaf) {
+            hierarchy.current.updateNodeState(node.data.id, 'unaltered');
+        } else {
+            hierarchy.current.updateChildrenState(node.data.id, 'unaltered');
+        }
+        forceRender();
+    }
 
     const hierarchyData = hierarchy.current.getHierarchy();
 
@@ -75,6 +92,7 @@ const App = () => {
                     onClose={closeContextMenu}
                     onInvert={handleInvert}
                     onSkip={handleSkip}
+                    onReset={handleReset}
                 />
             )}
         </div>

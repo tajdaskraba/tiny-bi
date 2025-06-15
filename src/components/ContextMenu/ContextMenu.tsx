@@ -10,9 +10,16 @@ interface ContextMenuProps {
   onClose: () => void;
   onInvert: (node: d3.HierarchyNode<Node>) => void;
   onSkip: (node: d3.HierarchyNode<Node>) => void;
+  onReset: (node: d3.HierarchyNode<Node>) => void;
 }
 
-export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, node, onClose, onInvert, onSkip }) => {
+export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, node, onClose, onInvert, onSkip, onReset }) => {
+  const isLeaf = !node.children || node.children.length === 0;
+
+  const isResetDisabled = isLeaf
+    ? node.data.status === 'unaltered'
+    : node.leaves().every(leaf => leaf.data.status === 'unaltered');
+
   const handleInvert = () => {
     onInvert(node);
     onClose();
@@ -23,11 +30,28 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, node, onClose, o
     onClose();
   };
 
+  const handleReset = () => {
+    if (isResetDisabled) return;
+    onReset(node);
+    onClose();
+  }
+
   return (
     <div className="context-menu" style={{ top: y, left: x }} onClick={(e) => e.stopPropagation()}>
       <ul>
-        <li onClick={handleInvert}>Invert Value</li>
-        <li onClick={handleSkip}>Skip Node</li>
+        {isLeaf ? (
+          <>
+            <li onClick={handleInvert}>Invert Value</li>
+            <li onClick={handleSkip}>Skip Node</li>
+          </>
+        ) : (
+          <>
+            <li onClick={handleInvert}>Invert All Children</li>
+            <li onClick={handleSkip}>Skip All Children</li>
+          </>
+        )}
+        <hr />
+        <li onClick={handleReset} className={isResetDisabled ? 'disabled' : ''}>Reset</li>
       </ul>
     </div>
   );
