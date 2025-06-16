@@ -2,7 +2,8 @@
     display: flex;
     justify-content: space-between;
     padding: 2px 5px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s;
 
     .node-value.sum {
         font-weight: bold;
@@ -25,6 +26,6 @@
 }
 
 .toggle-icon {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
 }

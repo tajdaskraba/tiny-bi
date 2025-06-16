@@ -1,14 +1,47 @@
+:root {
+  --font-color: #2c3e50;
+  --background-color: #ffffff;
+  --border-color: #2D2D2D;
+  --button-bg-color: #fff;
+  --button-text-color: #333;
+  --skipped-color: gray;
+  --hover-background-color: #f0f0f0;
+}
+
+.dark-theme {
+  --font-color: #ffffff;
+  --background-color: #1E1E1E;
+  --border-color: #ffffff;
+  --button-bg-color: #1E1E1E;
+  --button-text-color: #ecf0f1;
+  --skipped-color: #95a5a6;
+  --hover-background-color: #2D2D2D;
+
+  .toggle-icon {
+    filter: brightness(0) invert(1);
+  }
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
 .app {
   font-family: 'Open Sans', sans-serif;
   display: flex;
   justify-content: center;
   padding: 2rem;
+  background-color: var(--background-color);
+  color: var(--font-color);
+  min-height: 100vh;
 }
 
 .container {
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   width: 400px;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  height: fit-content;
 }

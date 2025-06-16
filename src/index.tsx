@@ -1,11 +1,12 @@
 import { createRoot } from 'react-dom/client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as d3 from 'd3';
-import { initialRawData } from './data/dataRaw';
+import { deepRawData4 } from './data/dataRaw';
 import { Hierarchy } from './classes/Hierarchy';
 import { Node, NodeState } from './types';
 import { NodeRow } from './components/NodeRow/NodeRow';
 import { ContextMenu } from './components/ContextMenu/ContextMenu';
+import { ThemeToggle } from './components/ThemeToggle/ThemeToggle';
 import './index.scss';
 
 interface ContextMenuState {
@@ -16,9 +17,10 @@ interface ContextMenuState {
 }
 
 const App = () => {
-    const hierarchy = useRef(new Hierarchy(initialRawData, "root"));
+    const hierarchy = useRef(new Hierarchy(deepRawData4, "root"));
     const [renderKey, setRenderKey] = useState(0);
     const [contextMenu, setContextMenu] = useState<ContextMenuState>({ visible: false, x: 0, y: 0, node: null });
+    const [theme, setTheme] = useState('light');
 
     const forceRender = () => {
         setRenderKey(prev => prev + 1);
@@ -77,6 +79,10 @@ const App = () => {
         forceRender();
     }
 
+    const handleThemeToggle = () => {
+        setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+    };
+
     const handleToggle = (node: d3.HierarchyNode<Node>) => {
         hierarchy.current.toggleNodeCollapsed(node.data.id);
         forceRender();
@@ -85,7 +91,8 @@ const App = () => {
     const hierarchyData = hierarchy.current.getHierarchy();
 
     return (
-        <div className='app' key={renderKey} onClick={closeContextMenu}>
+        <div className={`app ${theme}-theme`} key={renderKey} onClick={closeContextMenu}>
+            <ThemeToggle theme={theme} onToggle={handleThemeToggle} />
             <div className='container'>
                 {hierarchyData.children?.map(child => (
                     <NodeRow key={child.data.id} node={child} onContextMenu={handleContextMenu} onToggle={handleToggle} />
