@@ -19,6 +19,7 @@ export const transformRawNodes = (rawData: RawNode[]): Node[] => {
         name,
         status: 'unaltered',
         children: transformRawNodes(value),
+        isCollapsed: false,
       };
     }
   });
@@ -31,5 +32,6 @@ export const createHierarchyData = (rawData: RawNode[], rootName: string = 'AC')
     name: rootName,
     status: 'unaltered',
     children: transformRawNodes(rawData),
+    isCollapsed: false,
   };
 }

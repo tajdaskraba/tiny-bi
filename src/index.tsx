@@ -77,12 +77,19 @@ const App = () => {
         forceRender();
     }
 
+    const handleToggle = (node: d3.HierarchyNode<Node>) => {
+        hierarchy.current.toggleNodeCollapsed(node.data.id);
+        forceRender();
+    };
+
     const hierarchyData = hierarchy.current.getHierarchy();
 
     return (
         <div className='app' key={renderKey} onClick={closeContextMenu}>
             <div className='container'>
-                <NodeRow node={hierarchyData} onContextMenu={handleContextMenu} />
+                {hierarchyData.children?.map(child => (
+                    <NodeRow key={child.data.id} node={child} onContextMenu={handleContextMenu} onToggle={handleToggle} />
+                ))}
             </div>
             {contextMenu.visible && contextMenu.node && (
                 <ContextMenu

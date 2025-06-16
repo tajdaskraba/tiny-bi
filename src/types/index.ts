@@ -6,6 +6,7 @@ export interface Node {
   value?: number;
   children?: Node[];
   status: NodeState;
+  isCollapsed?: boolean;
 }
 
 export type RawNode = { [key: string]: number | RawNode[] };

@@ -39,7 +39,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: 'src/index.html',
-      favicon: 'src/assets/giraffe-bi.png'
+      favicon: 'src/assets/favicon/giraffe-bi.png'
     }),
   ],
 }; 

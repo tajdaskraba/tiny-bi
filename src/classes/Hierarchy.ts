@@ -50,6 +50,15 @@ export class Hierarchy {
     }
   }
 
+  public toggleNodeCollapsed(nodeId: string): void {
+    const node = this.root.descendants().find(n => n.data.id === nodeId);
+    if (node) {
+      node.data.isCollapsed = !node.data.isCollapsed;
+    } else {
+      console.error(`Node id ${nodeId} not found.`);
+    }
+  }
+
   public getHierarchy(): d3.HierarchyNode<Node> {
     return this.root;
   }
