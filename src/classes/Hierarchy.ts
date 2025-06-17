@@ -157,4 +157,25 @@ export class Hierarchy {
       console.error(`Node with id ${nodeId} not found.`);
     }
   }
+
+  public toRawData(): RawNode[] {
+    const transformNode = (node: d3.HierarchyNode<Node>): RawNode => {
+      const rawNode: RawNode = {};
+      const key = node.data.name;
+  
+      if (node.children && node.children.length > 0) {
+        rawNode[key] = node.children.map(transformNode);
+      } else {
+        rawNode[key] = node.data.value;
+      }
+  
+      return rawNode;
+    };
+
+    if (!this.root.children) {
+      return [];
+    }
+  
+    return this.root.children.map(transformNode);
+  }
 } 

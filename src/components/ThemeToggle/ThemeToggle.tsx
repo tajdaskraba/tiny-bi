@@ -1,5 +1,4 @@
 import React from 'react';
-import './ThemeToggle.scss';
 import { SunIcon } from '../Icons/SunIcon';
 import { MoonIcon } from '../Icons/MoonIcon';
 

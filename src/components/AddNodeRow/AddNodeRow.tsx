@@ -42,7 +42,7 @@ export const AddNodeRow: React.FC<AddNodeRowProps> = ({ depth, onAdd, type }) =>
       <div style={{ paddingLeft: `${depth * 20}px` }} className="add-node-row">
         <button onClick={handleAddClick} className="add-button">
           <PlusIcon className="add-icon" />
-          {type === 'root' ? 'Add root' : 'Add child'}
+          {type === 'root' ? 'Root' : 'Child'}
         </button>
       </div>
     );
@@ -55,7 +55,7 @@ export const AddNodeRow: React.FC<AddNodeRowProps> = ({ depth, onAdd, type }) =>
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyPress}
-        placeholder={type === 'root' ? 'Root name' : 'Key or Key=Value'}
+        placeholder={type === 'root' ? 'Root' : 'Key or Key=Value'}
         autoFocus
         onBlur={() => { setIsAdding(false); setInputValue(''); }}
       />

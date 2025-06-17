@@ -6,7 +6,6 @@
   --button-text-color: #333;
   --skipped-color: gray;
   --hover-background-color: #f0f0f0;
-  --font-color: #333;
 }
 
 .dark-theme {
@@ -25,19 +24,40 @@
   .import-icon, .theme-icon, .add-icon, .delete-icon, .toggle-icon {
     color: white;
   }
+
+  .export-icon {
+    color: white;
+  }
+
+  input::placeholder {
+    color: var(--font-color);
+    opacity: 0.7;
+  }
 }
 
 body {
   margin: 0;
-  font-family: sans-serif;
+  font-family: 'Open Sans', sans-serif;
   transition: background-color 0.3s, color 0.3s;
   background-color: var(--background-color);
+  flex-direction: column;
+}
+
+input {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: var(--font-color);
+  letter-spacing: inherit;
+  background-color: transparent;
+  border: none;
+  outline: none;
 }
 
 .app {
-  font-family: 'Open Sans', sans-serif;
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: 2rem;
   background-color: var(--background-color);
   color: var(--font-color);
@@ -45,12 +65,49 @@ body {
   box-sizing: border-box;
 }
 
+.main-content {
+  position: relative;
+}
+
+.fixed-buttons {
+  position: absolute;
+  top: 40px;
+  left: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-toggle, .import-button, .export-button {
+  border: 1px solid var(--border-color);
+  border-left: none;
+  background-color: var(--background-color);
+  padding: 10px;
+  padding-left: 8px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 12px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.theme-toggle:hover, .import-button:hover, .export-button:hover {
+  transform: scale(1.1);
+}
+
 .container {
+  position: relative;
   border: 1px solid var(--border-color);
   background-color: var(--background-color);
-  width: 600px;
-  padding: 0.5rem 1rem;
+  width: 512px;
+  padding: 1.5rem 2rem;
   border-radius: 8px;
-  height: fit-content;
+  min-height: 400px;
+  max-height: 90vh;
+  overflow: auto;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }

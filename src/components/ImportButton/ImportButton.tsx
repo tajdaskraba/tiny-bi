@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { RawNode } from '../../types';
 import { ImportIcon } from '../Icons/ImportIcon';
-import './ImportButton.scss';
 
 interface ImportButtonProps {
     onImport: (jsonData: RawNode[]) => void;

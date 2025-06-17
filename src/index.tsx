@@ -8,6 +8,7 @@ import { AddNodeRow } from './components/AddNodeRow/AddNodeRow';
 import { ContextMenu } from './components/ContextMenu/ContextMenu';
 import { ThemeToggle } from './components/ThemeToggle/ThemeToggle';
 import { ImportButton } from './components/ImportButton/ImportButton';
+import { ExportButton } from './components/ExportButton/ExportButton';
 import './index.scss';
 
 interface ContextMenuState {
@@ -89,6 +90,20 @@ const App = () => {
         forceRender();
     };
 
+    const handleExport = () => {
+        const rawData = hierarchy.current.toRawData();
+        const jsonString = JSON.stringify(rawData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     const handleToggle = (node: d3.HierarchyNode<Node>) => {
         hierarchy.current.toggleNodeCollapsed(node.data.id);
         forceRender();
@@ -114,17 +129,20 @@ const App = () => {
 
     return (
         <div className={`app ${theme}-theme`} key={renderKey} onClick={closeContextMenu}>
-            <div className="fixed-buttons">
-                <ThemeToggle theme={theme} onToggle={handleThemeToggle} />
-                <ImportButton onImport={handleImport} />
-            </div>
-            <div className='container'>
-                {hierarchyData.children?.map(child => (
-                    <NodeRow key={child.data.id} node={child} onContextMenu={handleContextMenu} onToggle={handleToggle} onAddNode={handleAddNode} onDeleteNode={handleDeleteNode} onUpdateNode={handleUpdateNode}/>
-                ))}
-                {(!hierarchyData.children || hierarchyData.children.length === 0) && (
-                    <AddNodeRow depth={0} onAdd={(name, value) => handleAddNode(hierarchyData.data.id, name, value)} type="root" />
-                )}
+            <div className="main-content">
+                <div className="fixed-buttons">
+                    <ThemeToggle theme={theme} onToggle={handleThemeToggle} />
+                    <ImportButton onImport={handleImport} />
+                    <ExportButton onExport={handleExport} />
+                </div>
+                <div className='container'>
+                    {hierarchyData.children?.map(child => (
+                        <NodeRow key={child.data.id} node={child} onContextMenu={handleContextMenu} onToggle={handleToggle} onAddNode={handleAddNode} onDeleteNode={handleDeleteNode} onUpdateNode={handleUpdateNode}/>
+                    ))}
+                    {(!hierarchyData.children || hierarchyData.children.length === 0) && (
+                        <AddNodeRow depth={0} onAdd={(name, value) => handleAddNode(hierarchyData.data.id, name, value)} type="root" />
+                    )}
+                </div>
             </div>
             {contextMenu.visible && contextMenu.node && (
                 <ContextMenu
