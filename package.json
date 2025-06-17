@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack",
     "start": "node dist/index.js",
-    "start:dev": "webpack-dev-server"
+    "start:dev": "webpack-dev-server",
+    "dev": "webpack-dev-server"
   },
   "repository": {
     "type": "git",
