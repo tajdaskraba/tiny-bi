@@ -1,22 +1,67 @@
 .node-row {
     display: flex;
     justify-content: space-between;
-    padding: 2px 5px;
+    align-items: center;
+    padding: 4px 0;
+    color: var(--font-color);
     border-bottom: 1px solid var(--border-color);
     transition: border-color 0.3s;
 
+    .node-value {
+        display: flex;
+        align-items: center;
+    }
+    
     .node-value.sum {
         font-weight: bold;
     }
+    
 
     &.skipped {
         text-decoration: line-through;
         color: gray;
     }
+
+    .delete-icon {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s;
+        cursor: pointer;
+        color: var(--font-color);
+        margin-left: 8px;
+        width: 16px;
+        height: 16px;
+        padding-top: 2;
+    }
+
+    &:hover .delete-icon {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .node-name-input {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        font-size: inherit;
+        border: none;
+        outline: none;
+        background-color: transparent;
+        color: var(--font-color);
+        font-family: inherit;
+        word-break: break-word;
+        white-space: pre-wrap;
+        vertical-align: middle;
+    }
 }
 
 .node-name {
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    word-break: break-word;
+    white-space: pre-wrap;
+    vertical-align: middle;
 }
 
 .toggle {
@@ -28,4 +73,18 @@
 .toggle-icon {
     width: 14px;
     height: 14px;
+}
+
+.node-row-container {
+    .add-child-container {
+        overflow: hidden;
+        height: 0;
+        opacity: 0;
+        transition: height 0.2s ease-out, opacity 0.2s ease-out;
+    }
+
+    &:hover .add-child-container {
+        height: 28px;
+        opacity: 1;
+    }
 }

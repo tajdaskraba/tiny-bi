@@ -6,6 +6,7 @@
   --button-text-color: #333;
   --skipped-color: gray;
   --hover-background-color: #f0f0f0;
+  --font-color: #333;
 }
 
 .dark-theme {
@@ -20,12 +21,17 @@
   .toggle-icon {
     filter: brightness(0) invert(1);
   }
+
+  .import-icon, .theme-icon, .add-icon, .delete-icon, .toggle-icon {
+    color: white;
+  }
 }
 
 body {
   margin: 0;
   font-family: sans-serif;
   transition: background-color 0.3s, color 0.3s;
+  background-color: var(--background-color);
 }
 
 .app {
@@ -36,12 +42,15 @@ body {
   background-color: var(--background-color);
   color: var(--font-color);
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .container {
   border: 1px solid var(--border-color);
-  width: 400px;
-  padding: 1rem;
+  background-color: var(--background-color);
+  width: 600px;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   height: fit-content;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }

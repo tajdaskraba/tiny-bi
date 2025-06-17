@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import * as d3 from 'd3';
 import { Node } from '../../types/index';
 import './NodeRow.scss';
-import ArrowDown from '../../assets/icons/arrow-down.svg';
-import ArrowUp from '../../assets/icons/arrow-up.svg';
+import { ArrowDownIcon } from '../Icons/ArrowDownIcon';
+import { ArrowUpIcon } from '../Icons/ArrowUpIcon';
+import { AddNodeRow } from '../AddNodeRow/AddNodeRow';
+import { TrashIcon } from '../Icons/TrashIcon';
 
 interface NodeRowProps {
   node: d3.HierarchyNode<Node>;
   depth?: number;
   onContextMenu: (event: React.MouseEvent, node: d3.HierarchyNode<Node>) => void;
   onToggle: (node: d3.HierarchyNode<Node>) => void;
+  onAddNode: (parentId: string, name: string, value?: number) => void;
+  onDeleteNode: (nodeId: string) => void;
+  onUpdateNode: (nodeId: string, name: string, value?: number) => void;
 }
 
 const formatValue = (value: number | undefined, isRoot: boolean) => {
@@ -20,10 +25,20 @@ const formatValue = (value: number | undefined, isRoot: boolean) => {
     return value.toFixed(1);
 }
 
-export const NodeRow: React.FC<NodeRowProps> = ({ node, depth = 0, onContextMenu, onToggle }) => {
-  const hasChildren = node.children && node.children.length > 0;
-  const isInverted = node.data.status === 'inverted';
+export const NodeRow: React.FC<NodeRowProps> = ({ node, depth = 0, onContextMenu, onToggle, onAddNode, onDeleteNode, onUpdateNode }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  
+  const getInitialInputValue = () => {
+    let initialValue = node.data.name;
+    if (node.data.value !== undefined) {
+        initialValue += `=${node.data.value}`;
+    }
+    return initialValue;
+  }
 
+  const [inputValue, setInputValue] = useState(getInitialInputValue());
+  const hasChildren = node.data.children !== undefined;
+  const isInverted = node.data.status === 'inverted';
   const isSkippedLeaf = !hasChildren && node.data.status === 'skipped';
   const areAllChildrenSkipped = hasChildren && node.leaves().every(l => l.data.status === 'skipped');
   const isRowSkipped = isSkippedLeaf || areAllChildrenSkipped;
@@ -42,6 +57,50 @@ export const NodeRow: React.FC<NodeRowProps> = ({ node, depth = 0, onContextMenu
       return prefix + node.data.name;
   }
 
+  useEffect(() => {
+    if (!isEditing) {
+      setInputValue(getInitialInputValue());
+    }
+  }, [isEditing, node.data.name, node.data.value]);
+
+  const handleNameClick = () => {
+    setIsEditing(true);
+  }
+
+  const handleInputBlur = () => {
+    setIsEditing(false);
+    const trimmedValue = inputValue.trim();
+
+    if (trimmedValue === getInitialInputValue()) {
+        return;
+    }
+    
+    if (trimmedValue === '') {
+        onDeleteNode(node.data.id);
+        return;
+    }
+    
+    const parts = trimmedValue.split('=');
+    const name = parts[0].trim();
+    let value: number | undefined;
+
+    if (parts.length > 1) {
+        const parsedValue = parseFloat(parts[1].trim());
+        value = isNaN(parsedValue) ? undefined : parsedValue;
+    } else {
+        value = undefined;
+    }
+    onUpdateNode(node.data.id, name, value);
+  };
+
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleInputBlur();
+    } else if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
   let displayValue;
   if (isSkippedLeaf) {
       displayValue = node.data.value;
@@ -52,25 +111,43 @@ export const NodeRow: React.FC<NodeRowProps> = ({ node, depth = 0, onContextMenu
   }
 
   return (
-    <div onContextMenu={(e) => onContextMenu(e, node)}>
+    <div className="node-row-container" onContextMenu={(e) => onContextMenu(e, node)}>
         <div style={{ paddingLeft: `${depth * 20}px` }}>
             <div className={`node-row ${isRowSkipped ? 'skipped' : ''}`}>
-                <span className="node-name" onClick={() => hasChildren && onToggle(node)}>
+                <span className="node-name" onClick={handleNameClick}>
                     {hasChildren && (
-                        <span className={`toggle ${node.data.isCollapsed ? 'collapsed' : 'expanded'}`}>
-                            {node.data.isCollapsed ? <img className="toggle-icon" src={ArrowUp} alt="Expand" /> : <img className="toggle-icon" src={ArrowDown} alt="Collapse" />}
+                        <span className={`toggle ${node.data.isCollapsed ? 'collapsed' : 'expanded'}`} onClick={(e) => { e.stopPropagation(); onToggle(node); }}>
+                            {node.data.isCollapsed ? <ArrowUpIcon className="toggle-icon" /> : <ArrowDownIcon className="toggle-icon" />}
                         </span>
                     )}
-                    {nodeName()}
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onBlur={handleInputBlur}
+                        onKeyDown={handleInputKeyDown}
+                        autoFocus
+                        className="node-name-input"
+                      />
+                    ) : (
+                      nodeName()
+                    )}
                 </span>
-                <span className={`node-value ${hasChildren ? 'sum' : ''}`}>{formatValue(displayValue, depth === 0)}</span>
+                <span className={`node-value ${hasChildren ? 'sum' : ''}`}>
+                    {formatValue(displayValue, depth === 0)}
+                    <TrashIcon className="delete-icon" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDeleteNode(node.data.id); }} />
+                </span>
             </div>
         </div>
         {hasChildren && !node.data.isCollapsed && (
-            <div>
+            <div className="children-container">
                 {node.children?.map(child => (
-                    <NodeRow key={child.data.id} node={child} depth={depth + 1} onContextMenu={onContextMenu} onToggle={onToggle}/>
+                    <NodeRow key={child.data.id} node={child} depth={depth + 1} onContextMenu={onContextMenu} onToggle={onToggle} onAddNode={onAddNode} onDeleteNode={onDeleteNode} onUpdateNode={onUpdateNode}/>
                 ))}
+                <div className="add-child-container">
+                    <AddNodeRow depth={depth + 1} onAdd={(name, value) => onAddNode(node.data.id, name, value)} type="child" />
+                </div>
             </div>
         )}
     </div>

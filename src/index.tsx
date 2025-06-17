@@ -1,12 +1,13 @@
 import { createRoot } from 'react-dom/client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as d3 from 'd3';
-import { deepRawData4 } from './data/dataRaw';
 import { Hierarchy } from './classes/Hierarchy';
-import { Node, NodeState } from './types';
+import { Node, NodeState, RawNode } from './types';
 import { NodeRow } from './components/NodeRow/NodeRow';
+import { AddNodeRow } from './components/AddNodeRow/AddNodeRow';
 import { ContextMenu } from './components/ContextMenu/ContextMenu';
 import { ThemeToggle } from './components/ThemeToggle/ThemeToggle';
+import { ImportButton } from './components/ImportButton/ImportButton';
 import './index.scss';
 
 interface ContextMenuState {
@@ -17,7 +18,7 @@ interface ContextMenuState {
 }
 
 const App = () => {
-    const hierarchy = useRef(new Hierarchy(deepRawData4, "root"));
+    const hierarchy = useRef(new Hierarchy());
     const [renderKey, setRenderKey] = useState(0);
     const [contextMenu, setContextMenu] = useState<ContextMenuState>({ visible: false, x: 0, y: 0, node: null });
     const [theme, setTheme] = useState('light');
@@ -83,8 +84,29 @@ const App = () => {
         setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
     };
 
+    const handleImport = (jsonData: RawNode[]) => {
+        hierarchy.current = new Hierarchy(jsonData);
+        forceRender();
+    };
+
     const handleToggle = (node: d3.HierarchyNode<Node>) => {
         hierarchy.current.toggleNodeCollapsed(node.data.id);
+        forceRender();
+    };
+
+    const handleAddNode = (parentId: string, name: string, value?: number) => {
+        const children: Node[] | undefined = value === undefined ? [] : undefined;
+        hierarchy.current.addNode(parentId, { name, value, children });
+        forceRender();
+    };
+
+    const handleDeleteNode = (nodeId: string) => {
+        hierarchy.current.deleteNode(nodeId);
+        forceRender();
+    };
+
+    const handleUpdateNode = (nodeId: string, name: string, value?: number) => {
+        hierarchy.current.updateNodeData(nodeId, { name, value });
         forceRender();
     };
 
@@ -92,11 +114,17 @@ const App = () => {
 
     return (
         <div className={`app ${theme}-theme`} key={renderKey} onClick={closeContextMenu}>
-            <ThemeToggle theme={theme} onToggle={handleThemeToggle} />
+            <div className="fixed-buttons">
+                <ThemeToggle theme={theme} onToggle={handleThemeToggle} />
+                <ImportButton onImport={handleImport} />
+            </div>
             <div className='container'>
                 {hierarchyData.children?.map(child => (
-                    <NodeRow key={child.data.id} node={child} onContextMenu={handleContextMenu} onToggle={handleToggle} />
+                    <NodeRow key={child.data.id} node={child} onContextMenu={handleContextMenu} onToggle={handleToggle} onAddNode={handleAddNode} onDeleteNode={handleDeleteNode} onUpdateNode={handleUpdateNode}/>
                 ))}
+                {(!hierarchyData.children || hierarchyData.children.length === 0) && (
+                    <AddNodeRow depth={0} onAdd={(name, value) => handleAddNode(hierarchyData.data.id, name, value)} type="root" />
+                )}
             </div>
             {contextMenu.visible && contextMenu.node && (
                 <ContextMenu
