@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/dbf8cfc4-4b88-4ae6-9192-1ee6aa9bc9b0
 
 Implemented functionalities:
 
-1. Upload `.json` file
+1. Import `.json` file
 2. Add, edit and delete nodes and children
 3. Invert, skip or reset status of any child node
 4. Invert, skip or reset status of ancestor node's children
