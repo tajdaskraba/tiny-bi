@@ -6,6 +6,7 @@ import { ArrowDownIcon } from '../Icons/ArrowDownIcon';
 import { ArrowUpIcon } from '../Icons/ArrowUpIcon';
 import { AddNodeRow } from '../AddNodeRow/AddNodeRow';
 import { TrashIcon } from '../Icons/TrashIcon';
+import { formatValue } from '../../utils/formatValue';
 
 interface NodeRowProps {
   node: d3.HierarchyNode<Node>;
@@ -17,21 +18,14 @@ interface NodeRowProps {
   onUpdateNode: (nodeId: string, name: string, value?: number) => void;
 }
 
-const formatValue = (value: number | undefined, isRoot: boolean) => {
-    if (value === undefined) return '';
-    if (!isRoot && Math.abs(value) >= 1000) {
-        return `${(value / 1000).toFixed(1)}K`;
-    }
-    return value.toFixed(1);
-}
-
 export const NodeRow: React.FC<NodeRowProps> = ({ node, depth = 0, onContextMenu, onToggle, onAddNode, onDeleteNode, onUpdateNode }) => {
   const [isEditing, setIsEditing] = useState(false);
   
   const getInitialInputValue = () => {
     let initialValue = node.data.name;
-    if (node.data.value !== undefined) {
-        initialValue += `=${node.data.value}`;
+    const value = node.data.children ? node.value : node.data.value;
+    if (value !== undefined) {
+        initialValue += `=${value}`;
     }
     return initialValue;
   }
@@ -135,7 +129,7 @@ export const NodeRow: React.FC<NodeRowProps> = ({ node, depth = 0, onContextMenu
                     )}
                 </span>
                 <span className={`node-value ${hasChildren ? 'sum' : ''}`}>
-                    {formatValue(displayValue, depth === 0)}
+                    {formatValue(displayValue)}
                     <TrashIcon className="delete-icon" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDeleteNode(node.data.id); }} />
                 </span>
             </div>
